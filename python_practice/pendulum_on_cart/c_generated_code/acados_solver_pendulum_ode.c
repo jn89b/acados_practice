@@ -387,7 +387,7 @@ void pendulum_ode_acados_create_5_set_nlp_in(pendulum_ode_solver_capsule* capsul
     W_0[1+(NY0) * 1] = 2000;
     W_0[2+(NY0) * 2] = 0.02;
     W_0[3+(NY0) * 3] = 0.02;
-    W_0[4+(NY0) * 4] = 0.02;
+    W_0[4+(NY0) * 4] = 0.2;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
     double* W = calloc(NY*NY, sizeof(double));
@@ -396,7 +396,7 @@ void pendulum_ode_acados_create_5_set_nlp_in(pendulum_ode_solver_capsule* capsul
     W[1+(NY) * 1] = 2000;
     W[2+(NY) * 2] = 0.02;
     W[3+(NY) * 3] = 0.02;
-    W[4+(NY) * 4] = 0.02;
+    W[4+(NY) * 4] = 0.2;
 
     for (int i = 1; i < N; i++)
     {
@@ -473,8 +473,8 @@ void pendulum_ode_acados_create_5_set_nlp_in(pendulum_ode_solver_capsule* capsul
     double* lbx0 = lubx0;
     double* ubx0 = lubx0 + NBX0;
     // change only the non-zero elements:
-    lbx0[1] = 3.141592653589793;
-    ubx0[1] = 3.141592653589793;
+    lbx0[0] = 0.5;
+    ubx0[0] = 0.5;
 
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "idxbx", idxbx0);
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, 0, "lbx", lbx0);
@@ -569,7 +569,7 @@ void pendulum_ode_acados_create_6_set_opts(pendulum_ode_solver_capsule* capsule)
 
     // set up sim_method_num_steps
     // all sim_method_num_steps are identical
-    int sim_method_num_steps = 1;
+    int sim_method_num_steps = 2;
     for (int i = 0; i < N; i++)
         ocp_nlp_solver_opts_set_at_stage(nlp_config, nlp_opts, i, "dynamics_num_steps", &sim_method_num_steps);
 
@@ -627,7 +627,7 @@ void pendulum_ode_acados_create_6_set_opts(pendulum_ode_solver_capsule* capsule)
     int initialize_t_slacks = 0;
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "initialize_t_slacks", &initialize_t_slacks);
 
-    int qp_solver_iter_max = 50;
+    int qp_solver_iter_max = 200;
     ocp_nlp_solver_opts_set(nlp_config, nlp_opts, "qp_iter_max", &qp_solver_iter_max);
 
 int print_level = 0;
@@ -659,7 +659,7 @@ void pendulum_ode_acados_create_7_set_nlp_out(pendulum_ode_solver_capsule* capsu
 
     // initialize with x0
     
-    x0[1] = 3.141592653589793;
+    x0[0] = 0.5;
 
 
     double* u0 = xu0 + NX;

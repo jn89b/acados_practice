@@ -39,7 +39,7 @@
 #define CAR_MODEL_NX     3
 #define CAR_MODEL_NZ     0
 #define CAR_MODEL_NU     2
-#define CAR_MODEL_NP     0
+#define CAR_MODEL_NP     20
 #define CAR_MODEL_NBX    0
 #define CAR_MODEL_NBX0   3
 #define CAR_MODEL_NBU    2
@@ -60,10 +60,10 @@
 #define CAR_MODEL_NY0    5
 #define CAR_MODEL_NY     5
 #define CAR_MODEL_NYN    3
-#define CAR_MODEL_N      50
-#define CAR_MODEL_NH     0
+#define CAR_MODEL_N      40
+#define CAR_MODEL_NH     10
 #define CAR_MODEL_NPHI   0
-#define CAR_MODEL_NHN    0
+#define CAR_MODEL_NHN    10
 #define CAR_MODEL_NPHIN  0
 #define CAR_MODEL_NR     0
 
@@ -91,9 +91,8 @@ typedef struct car_model_solver_capsule
     /* external functions */
     // dynamics
 
-    external_function_param_casadi *impl_dae_fun;
-    external_function_param_casadi *impl_dae_fun_jac_x_xdot_z;
-    external_function_param_casadi *impl_dae_jac_x_xdot_u_z;
+    external_function_param_casadi *forw_vde_casadi;
+    external_function_param_casadi *expl_ode_fun;
 
 
 
@@ -106,9 +105,13 @@ typedef struct car_model_solver_capsule
 
 
     // constraints
+    external_function_param_casadi *nl_constr_h_fun_jac;
+    external_function_param_casadi *nl_constr_h_fun;
 
 
 
+    external_function_param_casadi nl_constr_h_e_fun_jac;
+    external_function_param_casadi nl_constr_h_e_fun;
 
 } car_model_solver_capsule;
 

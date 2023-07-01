@@ -36,13 +36,17 @@
 
 # model
 MODEL_SRC=
-MODEL_SRC+= car_model_model/car_model_impl_dae_fun.c
-MODEL_SRC+= car_model_model/car_model_impl_dae_fun_jac_x_xdot_z.c
-MODEL_SRC+= car_model_model/car_model_impl_dae_jac_x_xdot_u_z.c
+MODEL_SRC+= car_model_model/car_model_expl_ode_fun.c
+MODEL_SRC+= car_model_model/car_model_expl_vde_forw.c
+MODEL_SRC+= car_model_model/car_model_expl_vde_adj.c
 MODEL_OBJ := $(MODEL_SRC:.c=.o)
 
 # optimal control problem - mostly CasADi exports
 OCP_SRC=
+OCP_SRC+= car_model_constraints/car_model_constr_h_fun_jac_uxt_zt.c
+OCP_SRC+= car_model_constraints/car_model_constr_h_fun.c
+OCP_SRC+= car_model_constraints/car_model_constr_h_e_fun_jac_uxt_zt.c
+OCP_SRC+= car_model_constraints/car_model_constr_h_e_fun.c
 
 OCP_SRC+= acados_solver_car_model.c
 OCP_OBJ := $(OCP_SRC:.c=.o)
@@ -74,6 +78,7 @@ INCLUDE_PATH = /home/justin/acados/include
 LIB_PATH = /home/justin/acados/lib
 
 # preprocessor flags for make's implicit rules
+CPPFLAGS += -DACADOS_WITH_OSQP
 CPPFLAGS+= -I$(INCLUDE_PATH)
 CPPFLAGS+= -I$(INCLUDE_PATH)/acados
 CPPFLAGS+= -I$(INCLUDE_PATH)/blasfeo/include

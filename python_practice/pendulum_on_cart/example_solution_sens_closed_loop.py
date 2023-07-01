@@ -121,7 +121,7 @@ for i in range(Nsim):
         acados_ocp_solver.set(0, "ubx", xcurrent)
 
         status = acados_ocp_solver.solve()
-
+        acados_ocp_solver.print_statistics()
         if status != 0:
             print(xcurrent)
             acados_ocp_solver.print_statistics()

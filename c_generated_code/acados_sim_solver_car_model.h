@@ -37,7 +37,7 @@
 #define CAR_MODEL_NX     3
 #define CAR_MODEL_NZ     0
 #define CAR_MODEL_NU     2
-#define CAR_MODEL_NP     0
+#define CAR_MODEL_NP     20
 
 #ifdef __cplusplus
 extern "C" {

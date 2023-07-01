@@ -69,7 +69,12 @@ int main()
     x_current[3] = 0.0;
 
   
-    printf("main_sim: initial state not defined, should be in lbx_0, using zero vector.");
+    x_current[0] = 0.5;
+    x_current[1] = 0;
+    x_current[2] = 0;
+    x_current[3] = 0;
+    
+  
 
 
     // initial value for control input

@@ -37,6 +37,7 @@ extern "C" {
 #define casadi_s4 CASADI_PREFIX(s4)
 #define casadi_s5 CASADI_PREFIX(s5)
 #define casadi_s6 CASADI_PREFIX(s6)
+#define casadi_s7 CASADI_PREFIX(s7)
 
 /* Symbol visibility in DLLs */
 #ifndef CASADI_SYMBOL_EXPORT
@@ -56,12 +57,13 @@ extern "C" {
 static const casadi_int casadi_s0[7] = {3, 1, 0, 3, 0, 1, 2};
 static const casadi_int casadi_s1[6] = {2, 1, 0, 2, 0, 1};
 static const casadi_int casadi_s2[3] = {0, 0, 0};
-static const casadi_int casadi_s3[8] = {3, 3, 0, 0, 0, 2, 0, 1};
-static const casadi_int casadi_s4[9] = {3, 3, 0, 1, 2, 3, 0, 1, 2};
-static const casadi_int casadi_s5[8] = {3, 2, 0, 2, 3, 0, 1, 2};
-static const casadi_int casadi_s6[3] = {3, 0, 0};
+static const casadi_int casadi_s3[12] = {8, 1, 0, 8, 0, 1, 2, 3, 4, 5, 6, 7};
+static const casadi_int casadi_s4[8] = {3, 3, 0, 0, 0, 2, 0, 1};
+static const casadi_int casadi_s5[9] = {3, 3, 0, 1, 2, 3, 0, 1, 2};
+static const casadi_int casadi_s6[8] = {3, 2, 0, 2, 3, 0, 1, 2};
+static const casadi_int casadi_s7[3] = {3, 0, 0};
 
-/* car_model_impl_dae_fun_jac_x_xdot_u_z:(i0[3],i1[3],i2[2],i3[],i4[])->(o0[3],o1[3x3,2nz],o2[3x3,3nz],o3[3x2,3nz],o4[3x0]) */
+/* car_model_impl_dae_fun_jac_x_xdot_u_z:(i0[3],i1[3],i2[2],i3[],i4[8])->(o0[3],o1[3x3,2nz],o2[3x3,3nz],o3[3x2,3nz],o4[3x0]) */
 static int casadi_f0(const casadi_real** arg, casadi_real** res, casadi_int* iw, casadi_real* w, int mem) {
   casadi_real a0, a1, a2, a3, a4, a5;
   a0=arg[1]? arg[1][0] : 0;
@@ -166,7 +168,7 @@ CASADI_SYMBOL_EXPORT const casadi_int* car_model_impl_dae_fun_jac_x_xdot_u_z_spa
     case 1: return casadi_s0;
     case 2: return casadi_s1;
     case 3: return casadi_s2;
-    case 4: return casadi_s2;
+    case 4: return casadi_s3;
     default: return 0;
   }
 }
@@ -174,10 +176,10 @@ CASADI_SYMBOL_EXPORT const casadi_int* car_model_impl_dae_fun_jac_x_xdot_u_z_spa
 CASADI_SYMBOL_EXPORT const casadi_int* car_model_impl_dae_fun_jac_x_xdot_u_z_sparsity_out(casadi_int i) {
   switch (i) {
     case 0: return casadi_s0;
-    case 1: return casadi_s3;
-    case 2: return casadi_s4;
-    case 3: return casadi_s5;
-    case 4: return casadi_s6;
+    case 1: return casadi_s4;
+    case 2: return casadi_s5;
+    case 3: return casadi_s6;
+    case 4: return casadi_s7;
     default: return 0;
   }
 }
