@@ -36,32 +36,32 @@
 
 # model
 MODEL_SRC=
-MODEL_SRC+= car_model_model/car_model_expl_ode_fun.c
-MODEL_SRC+= car_model_model/car_model_expl_vde_forw.c
-MODEL_SRC+= car_model_model/car_model_expl_vde_adj.c
+MODEL_SRC+= plane_model_model/plane_model_expl_ode_fun.c
+MODEL_SRC+= plane_model_model/plane_model_expl_vde_forw.c
+MODEL_SRC+= plane_model_model/plane_model_expl_vde_adj.c
 MODEL_OBJ := $(MODEL_SRC:.c=.o)
 
 # optimal control problem - mostly CasADi exports
 OCP_SRC=
-OCP_SRC+= car_model_constraints/car_model_constr_h_fun_jac_uxt_zt.c
-OCP_SRC+= car_model_constraints/car_model_constr_h_fun.c
-OCP_SRC+= car_model_constraints/car_model_constr_h_e_fun_jac_uxt_zt.c
-OCP_SRC+= car_model_constraints/car_model_constr_h_e_fun.c
+OCP_SRC+= plane_model_constraints/plane_model_constr_h_fun_jac_uxt_zt.c
+OCP_SRC+= plane_model_constraints/plane_model_constr_h_fun.c
+OCP_SRC+= plane_model_constraints/plane_model_constr_h_e_fun_jac_uxt_zt.c
+OCP_SRC+= plane_model_constraints/plane_model_constr_h_e_fun.c
 
-OCP_SRC+= acados_solver_car_model.c
+OCP_SRC+= acados_solver_plane_model.c
 OCP_OBJ := $(OCP_SRC:.c=.o)
 
 # for sim solver
-SIM_SRC= acados_sim_solver_car_model.c
+SIM_SRC= acados_sim_solver_plane_model.c
 SIM_OBJ := $(SIM_SRC:.c=.o)
 
 # for target example
-EX_SRC= main_car_model.c
+EX_SRC= main_plane_model.c
 EX_OBJ := $(EX_SRC:.c=.o)
 EX_EXE := $(EX_SRC:.c=)
 
 # for target example_sim
-EX_SIM_SRC= main_sim_car_model.c
+EX_SIM_SRC= main_sim_plane_model.c
 EX_SIM_OBJ := $(EX_SIM_SRC:.c=.o)
 EX_SIM_EXE := $(EX_SIM_SRC:.c=)
 
@@ -78,7 +78,6 @@ INCLUDE_PATH = /home/justin/acados/include
 LIB_PATH = /home/justin/acados/lib
 
 # preprocessor flags for make's implicit rules
-CPPFLAGS += -DACADOS_WITH_OSQP
 CPPFLAGS+= -I$(INCLUDE_PATH)
 CPPFLAGS+= -I$(INCLUDE_PATH)/acados
 CPPFLAGS+= -I$(INCLUDE_PATH)/blasfeo/include
@@ -101,8 +100,8 @@ LDLIBS+= -lm
 LDLIBS+= 
 
 # libraries
-LIBACADOS_SOLVER=libacados_solver_car_model.so
-LIBACADOS_OCP_SOLVER=libacados_ocp_solver_car_model.so
+LIBACADOS_SOLVER=libacados_solver_plane_model.so
+LIBACADOS_OCP_SOLVER=libacados_ocp_solver_plane_model.so
 LIBACADOS_SIM_SOLVER=lib$(SIM_SRC:.c=.so)
 
 # virtual targets
@@ -155,7 +154,7 @@ ocp_cython: ocp_cython_o
 	-o acados_ocp_solver_pyx.so \
 	-Wl,-rpath=$(LIB_PATH) \
 	acados_ocp_solver_pyx.o \
-	$(abspath .)/libacados_ocp_solver_car_model.so \
+	$(abspath .)/libacados_ocp_solver_plane_model.so \
 	$(LDFLAGS) $(LDLIBS)
 
 # Sim Cython targets
@@ -182,7 +181,7 @@ sim_cython: sim_cython_o
 	-o acados_sim_solver_pyx.so \
 	-Wl,-rpath=$(LIB_PATH) \
 	acados_sim_solver_pyx.o \
-	$(abspath .)/libacados_sim_solver_car_model.so \
+	$(abspath .)/libacados_sim_solver_plane_model.so \
 	$(LDFLAGS) $(LDLIBS)
 
 clean:
@@ -195,13 +194,13 @@ clean_ocp_shared_lib:
 	$(RM) $(OCP_OBJ)
 
 clean_ocp_cython:
-	$(RM) libacados_ocp_solver_car_model.so
-	$(RM) acados_solver_car_model.o
+	$(RM) libacados_ocp_solver_plane_model.so
+	$(RM) acados_solver_plane_model.o
 	$(RM) acados_ocp_solver_pyx.so
 	$(RM) acados_ocp_solver_pyx.o
 
 clean_sim_cython:
-	$(RM) libacados_sim_solver_car_model.so
-	$(RM) acados_sim_solver_car_model.o
+	$(RM) libacados_sim_solver_plane_model.so
+	$(RM) acados_sim_solver_plane_model.o
 	$(RM) acados_sim_solver_pyx.so
 	$(RM) acados_sim_solver_pyx.o

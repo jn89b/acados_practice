@@ -1,6 +1,6 @@
 import numpy as np
 import Config
-from acados_template import AcadosModel
+# from acados_template import AcadosModel
 from casadi import SX, vertcat, sin, cos, sqrt, sum2, exp
 
 #create a 1d array of 5 elements with values of 2.0
@@ -8,7 +8,6 @@ from casadi import SX, vertcat, sin, cos, sqrt, sum2, exp
 
 min_obs_dist = Config.OBSTACLE_RADIUS + 2.0
 max_obs_dist = 1e5
-
 
 class CarModel():
     def __init__(self, 
@@ -18,6 +17,7 @@ class CarModel():
         self.define_states()
         self.define_controls()
         self.define_state_space()
+        self.define_parameters()
         self.define_constraints()
         self.define_slack_variables()
         self.define_prediction_horizon(time_horizon,num_steps)
@@ -31,22 +31,6 @@ class CarModel():
         self.states = vertcat(
             self.x, self.y, self.psi)
         
-        n_obstacles = Config.N_OBSTACLES
-        self.obs_x = SX.sym('obs_x', n_obstacles)
-        self.obs_y = SX.sym('obs_y', n_obstacles)        
-        self.dist = np.sqrt(((self.x- self.obs_x)*(self.x- self.obs_x)) \
-                         +((self.y - self.obs_y)*(self.y - self.obs_y)))
-
-        self.obst_cost = SX.sym('obst_cost', n_obstacles)
-        self.sum_cost = sum2(
-            (1.0 / exp((self.x - self.obs_x) + (self.y - self.obs_y)**2))
-        )
-
-        self.p = vertcat(self.obs_x, self.obs_y) #parameters for obstacle avoidance constraint
-        self.con_h_expr = self.dist #constraint expression
-        self.con_h_expr_e = self.dist #constraint expression at end of horizon    
-
-
     def define_controls(self) -> None:
         self.v_cmd = SX.sym("v_cmd")
         self.psi_cmd = SX.sym("psi_cmd")
@@ -64,6 +48,8 @@ class CarModel():
         x_dot = self.v_cmd * cos(self.psi)
         y_dot = self.v_cmd * sin(self.psi)
         psi_dot = self.psi_cmd
+
+
         #set dynamics 
         #explicit
         self.f_expl_expr = vertcat(
@@ -71,9 +57,29 @@ class CarModel():
         
         #implicit
         self.f_impl_expr = self.z_dot - self.f_expl_expr
+        self.cost_expr_y = vertcat(self.states , self.controls)
+        self.cost_expr_y_e = vertcat(self.states)
 
-        self.cost_expr_y = vertcat(self.states , self.controls , self.sum_cost);
-        self.cost_expr_y_e = vertcat(self.states, self.sum_cost);
+    def define_parameters(self) -> None:
+        """
+        applying inequality constraints of 
+        lh <= p <= uh
+        lhe <= pe <= uhe
+        """
+        n_obstacles = Config.N_OBSTACLES
+        self.obs_x = SX.sym('obs_x', n_obstacles)
+        self.obs_y = SX.sym('obs_y', n_obstacles)        
+        self.dist = np.sqrt(((self.x- self.obs_x)*(self.x- self.obs_x)) \
+                         +((self.y - self.obs_y)*(self.y - self.obs_y)))
+
+        self.obst_cost = SX.sym('obst_cost', n_obstacles)
+        self.sum_cost = sum2(
+            (1.0 / exp((self.x - self.obs_x) + (self.y - self.obs_y)**2))
+        )
+
+        self.p = vertcat(self.obs_x, self.obs_y) #parameters for obstacle avoidance constraint
+        self.con_h_expr = self.dist #constraint expression
+        self.con_h_expr_e = self.dist #constraint expression at end of horizon  
 
     def define_constraints(self) -> None:
         #boundary constraints

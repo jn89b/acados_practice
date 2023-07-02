@@ -169,26 +169,6 @@ int car_model_acados_sim_create(sim_solver_capsule * capsule)
     /* initialize parameter values */
     double* p = calloc(np, sizeof(double));
     
-    p[0] = 28;
-    p[1] = 15;
-    p[2] = 48;
-    p[3] = 17;
-    p[4] = 25;
-    p[5] = 30;
-    p[6] = 16;
-    p[7] = 18;
-    p[8] = 24;
-    p[9] = 38;
-    p[10] = 30;
-    p[11] = 22;
-    p[12] = 36;
-    p[13] = 44;
-    p[14] = 37;
-    p[15] = 32;
-    p[16] = 40;
-    p[17] = 31;
-    p[18] = 37;
-    p[19] = 29;
 
     car_model_acados_sim_update_params(capsule, p, np);
     free(p);
@@ -196,8 +176,8 @@ int car_model_acados_sim_create(sim_solver_capsule * capsule)
 
     /* initialize input */
     // x
-    double x0[3];
-    for (int ii = 0; ii < 3; ii++)
+    double x0[6];
+    for (int ii = 0; ii < 6; ii++)
         x0[ii] = 0.0;
 
     sim_in_set(car_model_sim_config, car_model_sim_dims,
@@ -205,19 +185,19 @@ int car_model_acados_sim_create(sim_solver_capsule * capsule)
 
 
     // u
-    double u0[2];
-    for (int ii = 0; ii < 2; ii++)
+    double u0[4];
+    for (int ii = 0; ii < 4; ii++)
         u0[ii] = 0.0;
 
     sim_in_set(car_model_sim_config, car_model_sim_dims,
                car_model_sim_in, "u", u0);
 
     // S_forw
-    double S_forw[15];
-    for (int ii = 0; ii < 15; ii++)
+    double S_forw[60];
+    for (int ii = 0; ii < 60; ii++)
         S_forw[ii] = 0.0;
-    for (int ii = 0; ii < 3; ii++)
-        S_forw[ii + ii * 3 ] = 1.0;
+    for (int ii = 0; ii < 6; ii++)
+        S_forw[ii + ii * 6 ] = 1.0;
 
 
     sim_in_set(car_model_sim_config, car_model_sim_dims,

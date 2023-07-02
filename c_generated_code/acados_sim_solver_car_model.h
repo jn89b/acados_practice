@@ -34,10 +34,10 @@
 #include "acados_c/sim_interface.h"
 #include "acados_c/external_function_interface.h"
 
-#define CAR_MODEL_NX     3
+#define CAR_MODEL_NX     6
 #define CAR_MODEL_NZ     0
-#define CAR_MODEL_NU     2
-#define CAR_MODEL_NP     20
+#define CAR_MODEL_NU     4
+#define CAR_MODEL_NP     2
 
 #ifdef __cplusplus
 extern "C" {

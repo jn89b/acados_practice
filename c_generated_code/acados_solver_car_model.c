@@ -297,7 +297,7 @@ void car_model_acados_create_3_create_and_set_functions(car_model_solver_capsule
         capsule->__CAPSULE_FNC__.casadi_sparsity_in = & __MODEL_BASE_FNC__ ## _sparsity_in; \
         capsule->__CAPSULE_FNC__.casadi_sparsity_out = & __MODEL_BASE_FNC__ ## _sparsity_out; \
         capsule->__CAPSULE_FNC__.casadi_work = & __MODEL_BASE_FNC__ ## _work; \
-        external_function_param_casadi_create(&capsule->__CAPSULE_FNC__ , 20); \
+        external_function_param_casadi_create(&capsule->__CAPSULE_FNC__ , 2); \
     }while(false)
 
 
@@ -340,26 +340,6 @@ void car_model_acados_create_4_set_default_parameters(car_model_solver_capsule* 
     const int N = capsule->nlp_solver_plan->N;
     // initialize parameters to nominal value
     double* p = calloc(NP, sizeof(double));
-    p[0] = 28;
-    p[1] = 15;
-    p[2] = 48;
-    p[3] = 17;
-    p[4] = 25;
-    p[5] = 30;
-    p[6] = 16;
-    p[7] = 18;
-    p[8] = 24;
-    p[9] = 38;
-    p[10] = 30;
-    p[11] = 22;
-    p[12] = 36;
-    p[13] = 44;
-    p[14] = 37;
-    p[15] = 32;
-    p[16] = 40;
-    p[17] = 31;
-    p[18] = 37;
-    p[19] = 29;
 
     for (int i = 0; i <= N; i++) {
         car_model_acados_update_params(capsule, i, p, NP);
@@ -409,16 +389,10 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     /**** Cost ****/
     double* yref_0 = calloc(NY0, sizeof(double));
     // change only the non-zero elements:
-    yref_0[0] = 65;
-    yref_0[1] = 65;
-    yref_0[2] = 4.71238898038469;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "yref", yref_0);
     free(yref_0);
     double* yref = calloc(NY, sizeof(double));
     // change only the non-zero elements:
-    yref[0] = 65;
-    yref[1] = 65;
-    yref[2] = 4.71238898038469;
 
     for (int i = 1; i < N; i++)
     {
@@ -427,27 +401,34 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     free(yref);
     double* yref_e = calloc(NYN, sizeof(double));
     // change only the non-zero elements:
-    yref_e[0] = 65;
-    yref_e[1] = 65;
-    yref_e[2] = 4.71238898038469;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, N, "yref", yref_e);
     free(yref_e);
    double* W_0 = calloc(NY0*NY0, sizeof(double));
     // change only the non-zero elements:
-    W_0[0+(NY0) * 0] = 0.1;
-    W_0[1+(NY0) * 1] = 0.1;
-    W_0[2+(NY0) * 2] = 0.1;
-    W_0[3+(NY0) * 3] = 0.1;
-    W_0[4+(NY0) * 4] = 0.1;
+    W_0[0+(NY0) * 0] = 1;
+    W_0[1+(NY0) * 1] = 1;
+    W_0[2+(NY0) * 2] = 1;
+    W_0[3+(NY0) * 3] = 1;
+    W_0[4+(NY0) * 4] = 1;
+    W_0[5+(NY0) * 5] = 1;
+    W_0[6+(NY0) * 6] = 1;
+    W_0[7+(NY0) * 7] = 1;
+    W_0[8+(NY0) * 8] = 1;
+    W_0[9+(NY0) * 9] = 1;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "W", W_0);
     free(W_0);
     double* W = calloc(NY*NY, sizeof(double));
     // change only the non-zero elements:
-    W[0+(NY) * 0] = 0.1;
-    W[1+(NY) * 1] = 0.1;
-    W[2+(NY) * 2] = 0.1;
-    W[3+(NY) * 3] = 0.1;
-    W[4+(NY) * 4] = 0.1;
+    W[0+(NY) * 0] = 1;
+    W[1+(NY) * 1] = 1;
+    W[2+(NY) * 2] = 1;
+    W[3+(NY) * 3] = 1;
+    W[4+(NY) * 4] = 1;
+    W[5+(NY) * 5] = 1;
+    W[6+(NY) * 6] = 1;
+    W[7+(NY) * 7] = 1;
+    W[8+(NY) * 8] = 1;
+    W[9+(NY) * 9] = 1;
 
     for (int i = 1; i < N; i++)
     {
@@ -456,9 +437,12 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     free(W);
     double* W_e = calloc(NYN*NYN, sizeof(double));
     // change only the non-zero elements:
-    W_e[0+(NYN) * 0] = 500;
-    W_e[1+(NYN) * 1] = 500;
-    W_e[2+(NYN) * 2] = 500;
+    W_e[0+(NYN) * 0] = 50;
+    W_e[1+(NYN) * 1] = 50;
+    W_e[2+(NYN) * 2] = 50;
+    W_e[3+(NYN) * 3] = 50;
+    W_e[4+(NYN) * 4] = 50;
+    W_e[5+(NYN) * 5] = 50;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, N, "W", W_e);
     free(W_e);
     double* Vx_0 = calloc(NY0*NX, sizeof(double));
@@ -466,12 +450,17 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     Vx_0[0+(NY0) * 0] = 1;
     Vx_0[1+(NY0) * 1] = 1;
     Vx_0[2+(NY0) * 2] = 1;
+    Vx_0[3+(NY0) * 3] = 1;
+    Vx_0[4+(NY0) * 4] = 1;
+    Vx_0[5+(NY0) * 5] = 1;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "Vx", Vx_0);
     free(Vx_0);
     double* Vu_0 = calloc(NY0*NU, sizeof(double));
     // change only the non-zero elements:
-    Vu_0[3+(NY0) * 0] = 1;
-    Vu_0[4+(NY0) * 1] = 1;
+    Vu_0[6+(NY0) * 0] = 1;
+    Vu_0[7+(NY0) * 1] = 1;
+    Vu_0[8+(NY0) * 2] = 1;
+    Vu_0[9+(NY0) * 3] = 1;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, 0, "Vu", Vu_0);
     free(Vu_0);
     double* Vx = calloc(NY*NX, sizeof(double));
@@ -479,6 +468,9 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     Vx[0+(NY) * 0] = 1;
     Vx[1+(NY) * 1] = 1;
     Vx[2+(NY) * 2] = 1;
+    Vx[3+(NY) * 3] = 1;
+    Vx[4+(NY) * 4] = 1;
+    Vx[5+(NY) * 5] = 1;
     for (int i = 1; i < N; i++)
     {
         ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, i, "Vx", Vx);
@@ -489,8 +481,10 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     double* Vu = calloc(NY*NU, sizeof(double));
     // change only the non-zero elements:
     
-    Vu[3+(NY) * 0] = 1;
-    Vu[4+(NY) * 1] = 1;
+    Vu[6+(NY) * 0] = 1;
+    Vu[7+(NY) * 1] = 1;
+    Vu[8+(NY) * 2] = 1;
+    Vu[9+(NY) * 3] = 1;
 
     for (int i = 1; i < N; i++)
     {
@@ -503,6 +497,9 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     Vx_e[0+(NYN) * 0] = 1;
     Vx_e[1+(NYN) * 1] = 1;
     Vx_e[2+(NYN) * 2] = 1;
+    Vx_e[3+(NYN) * 3] = 1;
+    Vx_e[4+(NYN) * 4] = 1;
+    Vx_e[5+(NYN) * 5] = 1;
     ocp_nlp_cost_model_set(nlp_config, nlp_dims, nlp_in, N, "Vx", Vx_e);
     free(Vx_e);
 
@@ -542,14 +539,20 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     
     idxbu[0] = 0;
     idxbu[1] = 1;
+    idxbu[2] = 2;
+    idxbu[3] = 3;
     double* lubu = calloc(2*NBU, sizeof(double));
     double* lbu = lubu;
     double* ubu = lubu + NBU;
     
-    lbu[0] = 0.5;
-    ubu[0] = 10;
-    lbu[1] = -0.7853981633974483;
-    ubu[1] = 0.7853981633974483;
+    lbu[0] = -0.2617993877991494;
+    ubu[0] = 0.2617993877991494;
+    lbu[1] = -0.2617993877991494;
+    ubu[1] = 0.2617993877991494;
+    lbu[2] = -0.2617993877991494;
+    ubu[2] = 0.2617993877991494;
+    lbu[3] = 3;
+    ubu[3] = 10;
 
     for (int i = 0; i < N; i++)
     {
@@ -567,6 +570,40 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
 
 
 
+    // x
+    int* idxbx = malloc(NBX * sizeof(int));
+    
+    idxbx[0] = 0;
+    idxbx[1] = 1;
+    idxbx[2] = 2;
+    idxbx[3] = 3;
+    idxbx[4] = 4;
+    idxbx[5] = 5;
+    double* lubx = calloc(2*NBX, sizeof(double));
+    double* lbx = lubx;
+    double* ubx = lubx + NBX;
+    
+    lbx[0] = -1000000000000000;
+    ubx[0] = 1000000000000000;
+    lbx[1] = -1000000000000000;
+    ubx[1] = 1000000000000000;
+    lbx[2] = 10;
+    ubx[2] = 100;
+    lbx[3] = -0.5235987755982988;
+    ubx[3] = 0.5235987755982988;
+    lbx[4] = -0.3490658503988659;
+    ubx[4] = 0.3490658503988659;
+    lbx[5] = -6.283185307179586;
+    ubx[5] = 6.283185307179586;
+
+    for (int i = 1; i < N; i++)
+    {
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "idxbx", idxbx);
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "lbx", lbx);
+        ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, i, "ubx", ubx);
+    }
+    free(idxbx);
+    free(lubx);
 
 
 
@@ -577,28 +614,10 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     double* uh = luh + NH;
 
     
-    lh[0] = 4;
-    lh[1] = 4;
-    lh[2] = 4;
-    lh[3] = 4;
-    lh[4] = 4;
-    lh[5] = 4;
-    lh[6] = 4;
-    lh[7] = 4;
-    lh[8] = 4;
-    lh[9] = 4;
+    lh[0] = 7;
 
     
     uh[0] = 100000;
-    uh[1] = 100000;
-    uh[2] = 100000;
-    uh[3] = 100000;
-    uh[4] = 100000;
-    uh[5] = 100000;
-    uh[6] = 100000;
-    uh[7] = 100000;
-    uh[8] = 100000;
-    uh[9] = 100000;
 
     for (int i = 0; i < N; i++)
     {
@@ -634,28 +653,10 @@ void car_model_acados_create_5_set_nlp_in(car_model_solver_capsule* capsule, con
     double* lh_e = luh_e;
     double* uh_e = luh_e + NHN;
     
-    lh_e[0] = 4;
-    lh_e[1] = 4;
-    lh_e[2] = 4;
-    lh_e[3] = 4;
-    lh_e[4] = 4;
-    lh_e[5] = 4;
-    lh_e[6] = 4;
-    lh_e[7] = 4;
-    lh_e[8] = 4;
-    lh_e[9] = 4;
+    lh_e[0] = 7;
 
     
     uh_e[0] = 100000;
-    uh_e[1] = 100000;
-    uh_e[2] = 100000;
-    uh_e[3] = 100000;
-    uh_e[4] = 100000;
-    uh_e[5] = 100000;
-    uh_e[6] = 100000;
-    uh_e[7] = 100000;
-    uh_e[8] = 100000;
-    uh_e[9] = 100000;
 
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, N, "nl_constr_h_fun_jac", &capsule->nl_constr_h_e_fun_jac);
     ocp_nlp_constraints_model_set(nlp_config, nlp_dims, nlp_in, N, "nl_constr_h_fun", &capsule->nl_constr_h_e_fun);
@@ -758,9 +759,7 @@ void car_model_acados_create_7_set_nlp_out(car_model_solver_capsule* capsule)
     double* xu0 = calloc(NX+NU, sizeof(double));
     double* x0 = xu0;
 
-    // initialize with x0
-    
-
+    // initialize with zeros
 
     double* u0 = xu0 + NX;
 
@@ -914,7 +913,7 @@ int car_model_acados_update_params(car_model_solver_capsule* capsule, int stage,
 {
     int solver_status = 0;
 
-    int casadi_np = 20;
+    int casadi_np = 2;
     if (casadi_np != np) {
         printf("acados_update_params: trying to set %i parameters for external functions."
             " External function has %i parameters. Exiting.\n", np, casadi_np);
@@ -961,7 +960,7 @@ int car_model_acados_update_params_sparse(car_model_solver_capsule * capsule, in
 {
     int solver_status = 0;
 
-    int casadi_np = 20;
+    int casadi_np = 2;
     if (casadi_np < n_update) {
         printf("car_model_acados_update_params_sparse: trying to set %d parameters for external functions."
             " External function has %d parameters. Exiting.\n", n_update, casadi_np);

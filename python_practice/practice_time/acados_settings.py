@@ -13,23 +13,6 @@ import random
 # obs_x = 30
 # obs_y = 20
 
-seed_val = 15
-random.seed(seed_val)
-
-obstacle_array = []
-for i in range(Config.N_OBSTACLES):
-    #random number between -100 and 100
-    obs_x = random.randint(Config.X_MIN, Config.X_MAX)
-    obs_y = random.randint(Config.Y_MIN, Config.Y_MAX)
-    obstacle_array.append((obs_x, obs_y))
-    # obstacle_array.append(obs_y)
-
-#turn obstacles into 1d array
-obstacles = np.array(obstacle_array).flatten()
-print(obstacles)
-
-yref = np.array([Config.GOAL_X, Config.GOAL_Y, np.deg2rad(270), 0, 0])
-yref_e = np.array([Config.GOAL_X, Config.GOAL_Y, np.deg2rad(270)])
 
 class AcadosSettings():
     """
@@ -148,9 +131,13 @@ class AcadosSettings():
         """
         #create a diagonal matrix based on size of the state
         #should have model define this
-        self.Q = np.diag([0.1, 0.1, 0.1])
-        self.R = np.diag([0.1, 0.1])
-        self.Qe = np.diag([500, 500, 500])
+        # self.Q = np.diag([0.1, 0.1, 0.1])
+        # self.R = np.diag([0.1, 0.1])
+        # self.Qe = np.diag([500, 500, 500])
+
+        self.Q = self.model.Q
+        self.R = self.model.R
+        self.Qe = self.model.Qe
         
         #catch error if Q does not equal to the number of states
         # if self.Q.shape[0] != self.nx:
@@ -176,8 +163,8 @@ class AcadosSettings():
         self.ocp.cost.Vx_e = np.eye(self.nx)
 
         #reference error
-        self.ocp.cost.yref = yref
-        self.ocp.cost.yref_e = yref_e
+        self.ocp.cost.yref = np.zeros((self.ny,))
+        self.ocp.cost.yref_e = np.zeros((self.ny_e,))
 
     def set_prediction_horizon(self):
         # for key, value in self.model.prediction_horizon.items():
@@ -198,222 +185,236 @@ class AcadosSettings():
         qp_solvers = ['FULL_CONDENSING_QPOASES', 'PARTIAL_CONDENSING_HPIPM', 'FULL_CONDENSING_HPIPM',
                       'PARTIAL_CONDENSING_QPDUNES', 'PARTIAL_CONDENSING_OSQP', 'FULL_CONDENSING_DAQP']
         self.ocp.solver_options.qp_solver = qp_solvers[4] #'FULL_CONDENSING_HPIPM'#' #'FULL_CONDENSING_QPOASES'
-        self.ocp.solver_options.hessian_approx = 'GAUSS_NEWTON'
+        self.ocp.solver_options.hessian_approx = 'GAUSS_NEWTON' #exact hessian
         self.ocp.solver_options.integrator_type = 'ERK' #explicit runge kutta
         self.ocp.solver_options.nlp_solver_type = 'SQP_RTI'
+        # self.pcp.set_solver_options.globalization = glo
         self.ocp.solver_options.nlp_solver_max_iter = 100   
         #regularize the hessian
-        self.ocp.solver_options.levenberg_marquardt = 0.15
+        # self.ocp.solver_options.regularize_method = 'CONVEXIFY' #no regularization
+        self.ocp.solver_options.levenberg_marquardt = 1e-1
         self.ocp.solver_options.tol = 1e-4
-        self.ocp.solver_options.qp_solver_iter_max = 100     
-        # self.ocp.solver_options.alpha_min = 0.05
+        self.ocp.solver_options.qp_solver_iter_max = 100 
+        # self.ocp.solver_options.print_level = 1    
 
     def set_initial_conditions(self) -> None:
         # self.ocp.parameter_values = np.array([obs_x, obs_y]) #obstacle position
         self.ocp.constraints.x0 = self.model.init_x #has to be an array
-        self.ocp.parameter_values = obstacles
+        self.ocp.parameter_values = np.zeros((self.ocp.dims.np,)) #obstacle position
         print("size of parameter_values", self.ocp.parameter_values.shape)
 
     def set_terminal_conditions(self) -> None:
         print("size of yref", self.ocp.cost.yref.shape)
         print("size of yref_e", self.ocp.cost.yref_e.shape)
 
-def compute_distance(x1, y1, x2, y2):
-    return np.sqrt((x1-x2)**2 + (y1-y2)**2)
 
-if __name__ == '__main__':
-    plt.close("all")
+# def simulate() -> None:
+#     plt.close("all")
+#     car_model = CarModel()
+#     car_model_ac = AcadosSettings(car_model)
 
-    car_model = CarModel()
-    car_model_ac = AcadosSettings(car_model)
+#     #begin simulation
+#     ocp = car_model_ac.ocp
+#     acados_ocp_solver = AcadosOcpSolver(
+#         ocp, json_file = 'acados_ocp' + ocp.model.name +'.json')
+#     print("good to go!")
 
-    #begin simulation
-    ocp = car_model_ac.ocp
-    acados_ocp_solver = AcadosOcpSolver(
-        ocp, json_file = 'acados_ocp' + ocp.model.name +'.json')
-    print("good to go!")
-
-    acados_integrator = AcadosSimSolver(
-        ocp, json_file = 'acados_ocp' + ocp.model.name +'.json')
+#     acados_integrator = AcadosSimSolver(
+#         ocp, json_file = 'acados_ocp' + ocp.model.name +'.json')
     
-    # prepare simulation
-    Nsim = 1000
-    N_horizon = ocp.dims.N
-    nx = ocp.model.x.size()[0]
-    nu = ocp.model.u.size()[0]
+#     # prepare simulation
+#     Nsim = 1000
+#     N_horizon = ocp.dims.N
+#     nx = ocp.model.x.size()[0]
+#     nu = ocp.model.u.size()[0]
 
-    simX = np.ndarray((Nsim + 1, nx))
-    simU = np.ndarray((Nsim, nu))
-    time_array = []
+#     simX = np.ndarray((Nsim + 1, nx))
+#     simU = np.ndarray((Nsim, nu))
+#     time_array = []
 
-    xy_predictions = np.zeros((N_horizon,2))    
-    #initial and reference conditions
-    X0 = np.array([0, 0, np.deg2rad(0)])
-    terminal_tolerance = 0.5
+#     xy_predictions = np.zeros((N_horizon,2))    
+#     #initial and reference conditions
+#     X0 = np.array([0, 0, np.deg2rad(0)])
+#     terminal_tolerance = 0.5
 
-    tcomp_sum = 0
-    tcomp_max = 0
-    xcurrent = X0
-    simX[0, :] = xcurrent
-    print("starting at ", xcurrent)
-    # initialize solver
-    for stage in range(N_horizon + 1):
-        acados_ocp_solver.set(stage, "x", 0.0 * np.ones(xcurrent.shape))
-        acados_ocp_solver.set(stage,"p", obstacles)
+#     print("starting at ", xcurrent)
+#     # initialize solver
+#     for stage in range(N_horizon + 1):
+#         acados_ocp_solver.set(stage, "x", 0.0 * np.ones(xcurrent.shape))
+#         acados_ocp_solver.set(stage,"p", obstacles)
 
-    for stage in range(N_horizon):
-        acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
-        acados_ocp_solver.set(stage,"p", obstacles)
-        xy_predictions[stage, :] = xcurrent[0:2]
+#     for stage in range(N_horizon):
+#         acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
+#         acados_ocp_solver.set(stage,"p", obstacles)
+#         xy_predictions[stage, :] = xcurrent[0:2]
 
-    # closed loop
-    for i in range(Nsim):
 
-        #check if we are done
-        finished_iteration = i
-        if np.linalg.norm(xcurrent[0:2] - yref[0:2]) < terminal_tolerance:
-            print("reached target")
-            print("heading is ", np.rad2deg(xcurrent[2]));
-            break
+# if __name__ == '__main__':
+#     plt.close("all")
 
-        #check if in obstacle
-        for obst in obstacle_array:
-            obst = np.array(obst)
-            if (compute_distance(xcurrent[0], xcurrent[1], obst[0], obst[1]) <= Config.OBSTACLE_RADIUS):
+#     car_model = CarModel()
+#     car_model_ac = AcadosSettings(car_model)
+
+#     #begin simulation
+#     ocp = car_model_ac.ocp
+#     acados_ocp_solver = AcadosOcpSolver(
+#         ocp, json_file = 'acados_ocp' + ocp.model.name +'.json')
+#     print("good to go!")
+
+#     acados_integrator = AcadosSimSolver(
+#         ocp, json_file = 'acados_ocp' + ocp.model.name +'.json')
+    
+#     # prepare simulation
+#     Nsim = 1000
+#     N_horizon = ocp.dims.N
+#     nx = ocp.model.x.size()[0]
+#     nu = ocp.model.u.size()[0]
+
+#     simX = np.ndarray((Nsim + 1, nx))
+#     simU = np.ndarray((Nsim, nu))
+#     time_array = []
+
+#     xy_predictions = np.zeros((N_horizon,2))    
+#     #initial and reference conditions
+#     X0 = np.array([0, 0, np.deg2rad(0)])
+#     terminal_tolerance = 0.5
+
+#     tcomp_sum = 0
+#     tcomp_max = 0
+#     xcurrent = X0
+#     simX[0, :] = xcurrent
+#     print("starting at ", xcurrent)
+#     # initialize solver
+#     for stage in range(N_horizon + 1):
+#         acados_ocp_solver.set(stage, "x", 0.0 * np.ones(xcurrent.shape))
+#         acados_ocp_solver.set(stage,"p", obstacles)
+
+#     for stage in range(N_horizon):
+#         acados_ocp_solver.set(stage, "u", np.zeros((nu,)))
+#         acados_ocp_solver.set(stage,"p", obstacles)
+#         xy_predictions[stage, :] = xcurrent[0:2]
+
+#     # closed loop
+#     for i in range(Nsim):
+
+#         #check if we are done
+#         finished_iteration = i
+#         if np.linalg.norm(xcurrent[0:2] - yref[0:2]) < terminal_tolerance:
+#             print("reached target")
+#             print("heading is ", np.rad2deg(xcurrent[2]));
+#             break
+
+#         #check if in obstacle
+#         for obst in obstacle_array:
+#             obst = np.array(obst)
+#             if (compute_distance(xcurrent[0], xcurrent[1], obst[0], obst[1]) <= Config.OBSTACLE_RADIUS):
                 
-                #plot the solution that failed
-                fig,ax = plt.subplots()
-                ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "bo")
-                ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "b")
+#                 #plot the solution that failed
+#                 fig,ax = plt.subplots()
+#                 ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "bo")
+#                 ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "b")
                 
-                #plot the projections
-                ax.plot(xy_predictions[:, 0], xy_predictions[:, 1], "go")
+#                 #plot the projections
+#                 ax.plot(xy_predictions[:, 0], xy_predictions[:, 1], "go")
 
-                for obst in obstacle_array:
-                    ax.add_patch(plt.Circle((obst[0], obst[1]), Config.OBSTACLE_RADIUS, color='r'))
-                ax.plot(yref[0], yref[1], "ro")
-                ax.plot(yref[0], yref[1], "r")
-                plt.show()
+#                 for obst in obstacle_array:
+#                     ax.add_patch(plt.Circle((obst[0], obst[1]), Config.OBSTACLE_RADIUS, color='r'))
+#                 ax.plot(yref[0], yref[1], "ro")
+#                 ax.plot(yref[0], yref[1], "r")
+#                 plt.show()
                 
-                dist = compute_distance(xcurrent[0], xcurrent[1], obst[0], obst[1])
-                print("obstacle at ", obst)
-                raise Exception(
-                    f"Current position {xcurrent[0:2]}, distance to obstacle is {dist}"
-                )
+#                 dist = compute_distance(xcurrent[0], xcurrent[1], obst[0], obst[1])
+#                 print("obstacle at ", obst)
+#                 raise Exception(
+#                     f"Current position {xcurrent[0:2]}, distance to obstacle is {dist}"
+#                 )
+            
+#         # set initial state constraint
+#         #wrap heading between 0 and 2pi
+#         xcurrent[2] = xcurrent[2] % (2 * np.pi)
+#         acados_ocp_solver.set(0, "lbx", xcurrent)
+#         acados_ocp_solver.set(0, "ubx", xcurrent)
 
-            # print(np.linalg.norm(xcurrent[0:2] - obst[0:2]))
-            # if np.linalg.norm(xcurrent[0:2] - obst[0:2]) < 0.1:
-            #     print("in obstacle")
-            #     break
+#         # update yref
+#         for j in range(N_horizon):
+#             yref = yref
+#             yref[2] = xcurrent[2]
+#             acados_ocp_solver.set(j, "yref", yref)
+#             acados_ocp_solver.set(j,"p", obstacles)
+#             xy_predictions[j,0] = acados_ocp_solver.get(j, "x")[0] #x1
+#             xy_predictions[j,1] = acados_ocp_solver.get(j, "x")[1] #x2
 
-        # set initial state constraint
-        #wrap heading between 0 and 2pi
-        xcurrent[2] = xcurrent[2] % (2 * np.pi)
-        acados_ocp_solver.set(0, "lbx", xcurrent)
-        acados_ocp_solver.set(0, "ubx", xcurrent)
+#         yref_N = yref_e
+#         acados_ocp_solver.set(N_horizon, "yref", yref_N)
 
-        # update yref
-        for j in range(N_horizon):
-            yref = yref
-            yref[2] = xcurrent[2]
-            acados_ocp_solver.set(j, "yref", yref)
-            acados_ocp_solver.set(j,"p", obstacles)
-            xy_predictions[j,0] = acados_ocp_solver.get(j, "x")[0] #x1
-            xy_predictions[j,1] = acados_ocp_solver.get(j, "x")[1] #x2
+#         # solve ocp
+#         t = time.time()
+#         status = acados_ocp_solver.solve()
+#         elapsed = time.time() - t
+#         time_array.append(elapsed)
 
-            # acados_ocp_solver.set(j,"p", np.array([obs_x, obs_y]))
-        yref_N = yref_e
-        acados_ocp_solver.set(N_horizon, "yref", yref_N)
-        # acados_ocp_solver.set(N_horizon,"p", np.array([obs_x, obs_y]))
+#         # if status not in [0, 2]:
+#         #     acados_ocp_solver.print_statistics()
+#         #     #plot the solution that failed
+#         #     fig,ax = plt.subplots()
+#         #     ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "bo")
+#         #     ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "b")
+#         #     for obst in obstacle_array:
+#         #         ax.add_patch(plt.Circle((obst[0], obst[1]), Config.OBSTACLE_RADIUS, color='r'))
+#         #     ax.plot(yref[0], yref[1], "ro")
+#         #     ax.plot(yref[0], yref[1], "r")
 
-        # solve ocp
-        t = time.time()
-        status = acados_ocp_solver.solve()
-        elapsed = time.time() - t
-        time_array.append(elapsed)
+#         #     #plot controls
+#         #     fig1,ax1 = plt.subplots()
+#         #     ax1.plot(simU[:finished_iteration, 0], "bo", label="velocity")
+#         #     # ax1.plot(simU[:finished_iteration, 0], "b")
+#         #     ax1.plot(simU[:finished_iteration, 1], "go", label="steering")
+#         #     # ax1.plot(simU[:finished_iteration, 1], "g")
+#         #     ax1.legend()    
+#         #     plt.show()
+#         #     dist = np.sqrt((xcurrent[0] - obs_x)**2 + (xcurrent[1] - obs_y)**2)
+#         #     raise Exception(
+#         #         f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
+#         #     )
 
-        # if status not in [0, 2]:
-        #     acados_ocp_solver.print_statistics()
-        #     #plot the solution that failed
-        #     fig,ax = plt.subplots()
-        #     ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "bo")
-        #     ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "b")
-        #     for obst in obstacle_array:
-        #         ax.add_patch(plt.Circle((obst[0], obst[1]), Config.OBSTACLE_RADIUS, color='r'))
-        #     ax.plot(yref[0], yref[1], "ro")
-        #     ax.plot(yref[0], yref[1], "r")
+#         simU[i, :] = acados_ocp_solver.get(0, "u")
 
-        #     #plot controls
-        #     fig1,ax1 = plt.subplots()
-        #     ax1.plot(simU[:finished_iteration, 0], "bo", label="velocity")
-        #     # ax1.plot(simU[:finished_iteration, 0], "b")
-        #     ax1.plot(simU[:finished_iteration, 1], "go", label="steering")
-        #     # ax1.plot(simU[:finished_iteration, 1], "g")
-        #     ax1.legend()    
-        #     plt.show()
-        #     dist = np.sqrt((xcurrent[0] - obs_x)**2 + (xcurrent[1] - obs_y)**2)
-        #     raise Exception(
-        #         f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
-        #     )
+#         # simulate system
+#         acados_integrator.set("x", xcurrent)
+#         acados_integrator.set("u", simU[i, :])
 
-        # if status == 2:
-        #     acados_ocp_solver.print_statistics()
-        #     dist = np.sqrt((xcurrent[0] - obs_x)**2 + (xcurrent[1] - obs_y)**2)
-        #     print(
-        #         f"acados acados_ocp_solver returned status {status} in closed loop instance {i} with {xcurrent}"
-        #     )
-        simU[i, :] = acados_ocp_solver.get(0, "u")
+#         status = acados_integrator.solve()
+#         # update state
+#         xcurrent = acados_integrator.get("x")
+#         simX[i + 1, :] = xcurrent
+#         print("current state", xcurrent)
 
-        # simulate system
-        acados_integrator.set("x", xcurrent)
-        acados_integrator.set("u", simU[i, :])
+#     acados_ocp_solver.print_statistics()
+#     print("average time", np.mean(time_array))
 
-        status = acados_integrator.solve()
-        # update state
-        xcurrent = acados_integrator.get("x")
-        simX[i + 1, :] = xcurrent
-        print("current state", xcurrent)
+#     fig,ax = plt.subplots()
+#     ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "bo")
+#     ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "b")
+#     ax.plot(yref[0], yref[1], "ro")
+#     ax.plot(yref[0], yref[1], "r")
 
-    acados_ocp_solver.print_statistics()
-    print("average time", np.mean(time_array))
-    # plot results
-    # if finished_iteration is None:
-    #     finished_iteration = Nsim
+#     for obst in obstacle_array:
+#         ax.add_patch(plt.Circle((obst[0], obst[1]), Config.OBSTACLE_RADIUS, color='r'))
 
+#     #set label
+#     ax.set_xlabel("x")
+#     ax.set_ylabel("y")
+#     ax.axis("equal")
+#     ax.grid(True)
 
-    fig,ax = plt.subplots()
-    ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "bo")
-    ax.plot(simX[:finished_iteration, 0], simX[:finished_iteration, 1], "b")
-    ax.plot(yref[0], yref[1], "ro")
-    ax.plot(yref[0], yref[1], "r")
-
-    #draw obstacles based on radius 
-    # obs_x = 50
-    # obs_y = 50
-    # obs_r = 10
-    # obs = plt.Circle((obs_x, obs_y), obs_r, color='r')
-
-    # ax = plt.gca()
-    # ax.add_artist(obs)
-    for obst in obstacle_array:
-        ax.add_patch(plt.Circle((obst[0], obst[1]), Config.OBSTACLE_RADIUS, color='r'))
-
-    #set label
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.axis("equal")
-    ax.grid(True)
-    # plt.show()
-
-    #plot controls
-    fig1,ax1 = plt.subplots()
-    ax1.plot(simU[:finished_iteration, 0], "bo", label="velocity")
-    # ax1.plot(simU[:finished_iteration, 0], "b")
-    ax1.plot(simU[:finished_iteration, 1], "go", label="steering")
-    # ax1.plot(simU[:finished_iteration, 1], "g")
-    ax1.legend()    
-
-    plt.show()
+#     #plot controls
+#     fig1,ax1 = plt.subplots()
+#     ax1.plot(simU[:finished_iteration, 0], "bo", label="velocity")
+#     # ax1.plot(simU[:finished_iteration, 0], "b")
+#     ax1.plot(simU[:finished_iteration, 1], "go", label="steering")
+#     # ax1.plot(simU[:finished_iteration, 1], "g")
+#     ax1.legend()    
+#     plt.show()
 
 
 

@@ -66,12 +66,16 @@ int main()
     x_current[0] = 0.0;
     x_current[1] = 0.0;
     x_current[2] = 0.0;
+    x_current[3] = 0.0;
+    x_current[4] = 0.0;
+    x_current[5] = 0.0;
 
   
     x_current[0] = 0;
     x_current[1] = 0;
     x_current[2] = 0;
     
+    printf("main_sim: NOTE: initial state not fully defined via lbx_0, using 0.0 for indices that are not in idxbx_0.");
   
 
 
@@ -79,28 +83,12 @@ int main()
     double u0[NU];
     u0[0] = 0.0;
     u0[1] = 0.0;
+    u0[2] = 0.0;
+    u0[3] = 0.0;
     // set parameters
     double p[NP];
-    p[0] = 28;
-    p[1] = 15;
-    p[2] = 48;
-    p[3] = 17;
-    p[4] = 25;
-    p[5] = 30;
-    p[6] = 16;
-    p[7] = 18;
-    p[8] = 24;
-    p[9] = 38;
-    p[10] = 30;
-    p[11] = 22;
-    p[12] = 36;
-    p[13] = 44;
-    p[14] = 37;
-    p[15] = 32;
-    p[16] = 40;
-    p[17] = 31;
-    p[18] = 37;
-    p[19] = 29;
+    p[0] = 0;
+    p[1] = 0;
 
     car_model_acados_sim_update_params(capsule, p, NP);
   

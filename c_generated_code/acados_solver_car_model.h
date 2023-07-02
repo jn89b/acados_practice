@@ -36,13 +36,13 @@
 #include "acados_c/ocp_nlp_interface.h"
 #include "acados_c/external_function_interface.h"
 
-#define CAR_MODEL_NX     3
+#define CAR_MODEL_NX     6
 #define CAR_MODEL_NZ     0
-#define CAR_MODEL_NU     2
-#define CAR_MODEL_NP     20
-#define CAR_MODEL_NBX    0
+#define CAR_MODEL_NU     4
+#define CAR_MODEL_NP     2
+#define CAR_MODEL_NBX    6
 #define CAR_MODEL_NBX0   3
-#define CAR_MODEL_NBU    2
+#define CAR_MODEL_NBU    4
 #define CAR_MODEL_NSBX   0
 #define CAR_MODEL_NSBU   0
 #define CAR_MODEL_NSH    0
@@ -57,13 +57,13 @@
 #define CAR_MODEL_NG     0
 #define CAR_MODEL_NBXN   0
 #define CAR_MODEL_NGN    0
-#define CAR_MODEL_NY0    5
-#define CAR_MODEL_NY     5
-#define CAR_MODEL_NYN    3
+#define CAR_MODEL_NY0    10
+#define CAR_MODEL_NY     10
+#define CAR_MODEL_NYN    6
 #define CAR_MODEL_N      40
-#define CAR_MODEL_NH     10
+#define CAR_MODEL_NH     1
 #define CAR_MODEL_NPHI   0
-#define CAR_MODEL_NHN    10
+#define CAR_MODEL_NHN    1
 #define CAR_MODEL_NPHIN  0
 #define CAR_MODEL_NR     0
 
